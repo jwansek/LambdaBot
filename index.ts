@@ -32,7 +32,7 @@ client.on('message', async (message) => {
         } else {
             const filter = (reaction: any, user: any) => {
                 return ['👍'].includes(reaction.emoji.name)
-                // && user.id !== message.author.id
+                  && user.id !== message.author.id
             }
 
             message.awaitReactions(filter, { max: 1, time: userConfig.reactionTimeout, errors: ['time'] }).then(collected => {
