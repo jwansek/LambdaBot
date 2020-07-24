@@ -5,17 +5,23 @@ If the user does not have the privilege, the message that contains the link will
 ## Prerequisites
 
 node.js v12+
+
 mongodb
+
 config.json (contains the bot's token)
 
 ## Setup
 
 npm install
+
 npm run watch
+
 npm run nodemon
 
 Or
 
 npm install
+
 npm compile
+
 run with pm2
