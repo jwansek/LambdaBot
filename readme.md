@@ -4,9 +4,22 @@ If the user does not have the privilege, the message that contains the link will
 
 ## Prerequisites
 
-node.js v12+
-mongodb
-config.json (contains the bot's token)
+node.js v16.6+
+mariadb
+docker (Optional)
+
+## config
+
+Create a file name `.env` in the root directory.
+
+Fill it with the following, and edit the values accordingly:
+
+MARIADB_HOST=db
+MARIADB_PORT=3306
+MARIADB_USER=root
+MARIADB_PASSWORD=example
+MARIADB_ROOT_PASSWORD=example
+TOKEN=your-token-here
 
 ## Setup
 
@@ -14,8 +27,11 @@ npm install
 npm run watch
 npm run nodemon
 
-Or
+Or use the Dockerfile
 
-npm install
-npm compile
-run with pm2
+docker build -t lambdabot:latest "."
+docker run lambdabot
+
+OR use docker-compose to launch the whole stack if you don't already have a mariadb set up.
+
+docker-compose -f stack.yml up
