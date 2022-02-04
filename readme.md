@@ -10,9 +10,9 @@ node.js v16.6+
 mariadb  
 docker (Optional)  
 
-## config
+## Config
 
-Create a file name `.env` in the root directory.
+Create a file named `.env` in the root directory.
 
 Fill it with the following, and edit the values accordingly:
  
