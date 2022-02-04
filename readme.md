@@ -1,7 +1,5 @@
-This bot gives a privilege to a user when the thumbsup (👍) reaction is made on a user's post.
-
-After that, the user is allowed to post one link, and then the privilege is removed.
-
+This bot gives a privilege to a user when the thumbsup (👍) reaction is made on a user's message by someone other than the original author.  
+After that, the user is allowed to post one link, and then the privilege is removed.  
 If the user does not have the privilege, the message that contains the link will be removed.
 
 ## Prerequisites
