@@ -10,7 +10,11 @@
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "../dist",
-    "resolveJsonModule": true
-  }
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "typeRoots": ["../node_modules/@types"],
+    "skipLibCheck": true
+  },
+  "include": ["./src/*.ts"],
+  "exclude": ["node_modules"]
 }

@@ -5,5 +5,5 @@ WORKDIR /usr/src/lambda_bot
 COPY package*.json ./
 RUN npm install && npm install typescript -g
 COPY . .
-RUN tsc -p ./src/tsconfig.json
+RUN tsc -p ./tsconfig.json
 CMD ["node","./dist/index.js"] 
