@@ -77,7 +77,7 @@ async function handleMessage(message: Message) {
                 // else your lambda is removed but the message stays
                 if (!await dbCheckCanPost(message.author?.id)) {
                     const channel = message.client.channels.cache.get(process.env.BOT_CHANNEL as string) as TextChannel
-                    channel.send(`Hi <@${message.author.id}>, your video posted in ${channel.name} was deleted because you failed to meet the Lambda requirements. Kindly give someone constructive feedback to earn it!`)
+                    channel.send(`Hi <@${message.author.id}>, your posted video was deleted because you failed to meet the Lambda requirements. Kindly give someone constructive feedback to earn it!`)
                     setTimeout(() => { message.delete() }, 1000)
                     console.log(`${message.author.username}'s post was removed because they did not have any Lambda`)
                 } else {

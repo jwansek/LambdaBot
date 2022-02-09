@@ -53,12 +53,6 @@ npm run nodemon
 Or use the Dockerfile
 
 ```
-docker build --pull --rm -f "Dockerfile" -t lambdabot:latest "."
-docker run lambdabot
-```
-
-OR use docker-compose to launch the whole stack if you don't already have a mariadb set up.
-
-```
-docker-compose -f stack.yml up
+sudo docker-compose build
+sudo docker-compose up -d
 ```
