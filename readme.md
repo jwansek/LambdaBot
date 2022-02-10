@@ -1,4 +1,4 @@
-This bot gives a privilege to a user when an specific emoji (👍) reaction is made on a user's message.
+This bot awards currency to a user when an specific emoji reaction is made on a user's message.
 
 The message should @notify or reply to an 'author'. This 'author' or a mod with the specified role can then give the reaction, awarding Lambda to the user.
 
@@ -27,7 +27,12 @@ MARIADB_ROOT_PASSWORD=example
 TOKEN=your-token-here
 
 #The emoji you want to use to award Lambda
+#If it's a custom emoji, provide the name. Ex: lambda
+#Otherwise provide it as an emoji. Ex: 👍
 EMOJI=👍
+
+#How much lambda it costs to post a video
+LAMBDA_COST=3
 
 #The channel(s) that the bot will moderate to separated by commas ex: 12342342,234234
 LISTENING_CHANNELS=123456789101112,1234567890111214

@@ -1,11 +1,12 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
 import { Client, Intents, Message, MessageReaction, ReactionEmoji, TextChannel, User } from 'discord.js'
-import { init, dbCheckCanPost, upsert } from './mariadb'
+import { init, queryLambda, upsert } from './mariadb'
 
 init()
 const listeningChannels = handleListeningChannels(process.env.LISTENING_CHANNELS)
 const modRoles = handleModRoles(process.env.MOD_ROLES)
+const lambdaCost = handleLambdaCost(process.env.LAMBDA_COST)
 const httpRegex = /((http:\/\/)?)(www\.)?((youtube\.com\/)|(youtu\.be)|(youtube)).+/
 
 const token = process.env.TOKEN
@@ -44,22 +45,20 @@ async function giveLambda(reaction: MessageReaction, user: User) {
     try {
         if (!reaction.message.partial) {
             if (listeningChannels.includes(reaction.message.channelId)) {
-                if (reaction?.emoji.name === process.env.EMOJI && (user.id !== reaction.message.author?.id || process.env.TEST_MODE === 'true')) {
-                    if (checkIfCanGiveLambda(reaction.message, user)) {
-                        // Check that the user doesn't already have lambda before 
-                        if (!await dbCheckCanPost(reaction.message.author?.id)) {
+                if (reaction?.emoji.name === process.env.EMOJI) {
+                    if (user.id !== reaction.message.author?.id || process.env.TEST_MODE === 'true') {
+                        if (checkIfCanGiveLambda(reaction.message, user)) {
+                            const lambda = await queryLambda(user.id);
                             (reaction.client.channels.cache.get(process.env.BOT_CHANNEL as string) as TextChannel)
-                                .send(`<@${user.id}> Lambda has been awarded to you for your feedback!`)
+                                .send(`<@${user.id}> Lambda has been awarded to you for your feedback! You now have ${lambda} lambda!`)
                             upsert(reaction?.message.author?.id, 1)
                             console.log(`${user.username} gave Lambda to ${reaction.message.author.username}`)
                         } else {
-                            console.log(`${user.username} tried to give Lambda to ${reaction.message.author.username}, but this user already has Lambda`)
+                            console.log(`${user.username} is not authorized to give lambda to ${reaction.message.author.username}`)
                         }
                     } else {
-                        console.log(`${user.username} is not authorized to give lambda to ${reaction.message.author.username}`)
+                        console.log(`${user.username} tried to give Lambda to themselves, but that's not allowed unless TEST_MODE is on`)
                     }
-                } else {
-                    console.log(`${user.username} tried to give Lambda to themselves, but that's not allowed unless TEST_MODE is on`)
                 }
             }
         }
@@ -75,16 +74,17 @@ async function handleMessage(message: Message) {
             if (httpRegex.test(message.content)) {
                 // If you don't have lambda, then your message is deleted
                 // else your lambda is removed but the message stays
-                if (!await dbCheckCanPost(message.author?.id)) {
+                const lambda = await queryLambda(message.author?.id)
+                if (lambda < lambdaCost) {
                     const channel = message.client.channels.cache.get(process.env.BOT_CHANNEL as string) as TextChannel
                     channel.send(`Hi <@${message.author.id}>, your video posted in ${channel.name} was deleted because you failed to meet the Lambda requirements. Kindly give someone constructive feedback to earn it!`)
                     setTimeout(() => { message.delete() }, 1000)
-                    console.log(`${message.author.username}'s post was removed because they did not have any Lambda`)
+                    console.log(`${message.author.username}'s post was removed because they did not have enough Lambda`)
                 } else {
                     const channel = message.client.channels.cache.get(process.env.BOT_CHANNEL as string) as TextChannel
-                    channel.send(`Hi <@${message.author.id}>, you have spent Lambda to post a Youtube link here. In order to post again, you must get Lambda by giving feedback and receiving a ${process.env.EMOJI} reaction`)
-                    upsert(message.author?.id, 0)
-                    console.log(`${message.author.username} spent lambda`)
+                    channel.send(`Hi <@${message.author.id}>, you have spent ${lambdaCost} Lambda to post a Youtube link here. In order to post again, you must get Lambda by giving feedback and receiving a "${process.env.EMOJI}" reaction`)
+                    upsert(message.author?.id, -(lambdaCost))
+                    console.log(`${message.author.username} spent ${lambdaCost} lambda`)
                 }
             }
         }
@@ -105,6 +105,13 @@ function handleModRoles(modRoles: string | undefined) {
         throw new Error('Bot not configured with any mod roles. Provide MOD_ROLES as an env var')
     }
     return modRoles.split(',')
+}
+
+function handleLambdaCost(lambda: string | undefined) {
+    if (!lambda) {
+        throw new Error('env LAMBDA_COST not set, please set it')
+    }
+    return parseInt(lambda)
 }
 
 // The mods in the role: MOD_ROLE and the user(s) mentioned in the message that is being reacted to can give lambda
