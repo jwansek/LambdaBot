@@ -26,7 +26,7 @@ export async function ensureTable() {
         console.log('lambda_users created')
         await conn.query("USE lambda_users")
         console.log('creating table users')
-        await conn.query("CREATE TABLE IF NOT EXISTS users (id VARCHAR(30) PRIMARY KEY, canPost BOOLEAN NOT NULL)")
+        await conn.query("CREATE TABLE IF NOT EXISTS users (id VARCHAR(30) PRIMARY KEY, lambda INT(5) NOT NULL)")
         console.log('table created')
     } catch (err) {
         console.log('could not create db/table')
@@ -51,7 +51,7 @@ export async function upsert(id: string | undefined, data: number) {
     try {
         conn = await pool.getConnection()
         await conn.query("USE lambda_users")
-        await conn.query(`INSERT INTO users VALUES (${id},${data}) ON DUPLICATE KEY UPDATE canPost=${data}`)
+        await conn.query(`INSERT INTO users VALUES (${id},${data}) ON DUPLICATE KEY UPDATE lambda = lambda + ${data}`)
     } catch (err) {
         console.log('error upsert')
         console.log(err)
@@ -72,11 +72,11 @@ export async function query(id: string) {
     try {
         conn = await pool.getConnection()
         await conn.query("USE lambda_users")
-        const result = await conn.query(`SELECT canPost FROM users WHERE id = ${id}`)
-        if (result && result.length > 0) {
-            return !!result[0].canPost
+        const result = await conn.query(`SELECT lambda FROM users WHERE id = ${id}`)
+        if (result) {
+            return result[0].lambda
         } else {
-            return false
+            return 0
         }
     } catch (err) {
         console.log('error query')
@@ -92,7 +92,7 @@ export async function query(id: string) {
     }
 }
 
-export async function dbCheckCanPost(id: string | undefined) {
+export async function queryLambda(id: string | undefined) {
     if (!id) {
         return false
     }
