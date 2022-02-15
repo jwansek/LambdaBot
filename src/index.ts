@@ -48,10 +48,10 @@ async function giveLambda(reaction: MessageReaction, user: User) {
                 if (reaction?.emoji.name === process.env.EMOJI) {
                     if (user.id !== reaction.message.author?.id || process.env.TEST_MODE === 'true') {
                         if (checkIfCanGiveLambda(reaction.message, user)) {
-                            const lambda = await queryLambda(user.id);
-                            (reaction.client.channels.cache.get(process.env.BOT_CHANNEL as string) as TextChannel)
-                                .send(`<@${user.id}> Lambda has been awarded to you for your feedback! You now have ${lambda} lambda!`)
                             upsert(reaction?.message.author?.id, 1)
+                            const lambda = await queryLambda(reaction.message.author?.id);
+                            (reaction.client.channels.cache.get(process.env.BOT_CHANNEL as string) as TextChannel)
+                                .send(`<@${reaction.message.author?.id}> Lambda has been awarded to you for your feedback! You now have ${lambda} lambda!`)
                             console.log(`${user.username} gave Lambda to ${reaction.message.author.username}`)
                         } else {
                             console.log(`${user.username} is not authorized to give lambda to ${reaction.message.author.username}`)

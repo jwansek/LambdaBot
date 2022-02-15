@@ -73,7 +73,7 @@ export async function query(id: string) {
         conn = await pool.getConnection()
         await conn.query("USE lambda_users")
         const result = await conn.query(`SELECT lambda FROM users WHERE id = ${id}`)
-        if (result) {
+        if (result && result[0] && result[0].lambda !== undefined) {
             return result[0].lambda
         } else {
             return 0
